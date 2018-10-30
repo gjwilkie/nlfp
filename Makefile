@@ -7,7 +7,7 @@ endif
 include Makefiles/Makefile.$(NLFP_SYSTEM)
 
 GIT_MOD='"$(shell git diff-index HEAD)"'
-@(info $(GIT_MOD))
+$(info $(GIT_MOD))
 ifdef GIT_MOD
 	GIT_MOD=-Modified
 endif
