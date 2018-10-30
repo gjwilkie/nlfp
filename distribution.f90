@@ -5,9 +5,14 @@ module distribution
 
    public:: initialdistribution_test1d
 
-   function initialdistribution_test1d(r,v,xi)
-      implicit none
+   contains 
 
-   end function calculate_diffcoeff_test1d(r,v,xi)
+   real function initialdistribution_test1d(r,v,xi)
+      implicit none
+      real,intent(in)::r,v,xi
+
+      initialdistribution_test1d = 1.0
+
+   end function initialdistribution_test1d
 
 end module distribution

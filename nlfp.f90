@@ -9,12 +9,14 @@
 program NLFP
 #include <petsc/finclude/petscsnes.h>
 use petscsnes
-use mpi
-use io, only: init_io, finish_io
+!use mpi
+use input, only: init_input
+use output, only: init_output, write_initial_data, finish_output
 use mp, only: mp_end, mp_init, iproc, nproc
+use grids, only: init_grids
 implicit none
 integer:: i, nargs, l
-character(len=64):: arg
+character(len=64):: runname
 
    ! Call basic initializations
    call mp_init()
@@ -25,21 +27,31 @@ character(len=64):: arg
       print*, "ERROR: Must pass the runname as an argument."
       stop 
    end if
-   call get_command_argument(1,arg)
-   arg = trim(arg)
-   l = len_trim(arg)
+   call get_command_argument(1,runname)
+   runname = trim(runname)
+   l = len_trim(runname)
    if (l > 3) then
-      if (arg(l-2:l) == ".in") then
-         arg = arg(1:l-3)
+      if (runname(l-2:l) == ".in") then
+         runname = runname(1:l-3)
       end if
    end if
 
-   call init_io(arg)
-
+   ! Read input file and set up output file
+   call init_input(runname)
    if (iproc == 0) then
-      call finish_io()
+      call init_output(runname)
    end if
 
+   call init_grids()
+
+   call write_initial_data()
+
+   ! Finish output
+   if (iproc == 0) then
+      call finish_output()
+   end if
+
+   ! Finish mpi and PETSc
    call mp_end()
 
 end program

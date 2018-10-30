@@ -3,11 +3,16 @@ module source
 
    private
 
-   public:: calculate_source_test1d
+   public:: source_test1d
 
-   function calculate_source_test1d(r,v,xi)
+   contains 
+
+   real function source_test1d(r,v,xi,t)
       implicit none
-
-   end function calculate_source_test1d(r,v,xi)
+      real,intent(in)::r,v,xi,t
+      real:: fac
+      fac = 0.75*(1.0-r**2) - 1.5*r**3 + exp(-r**2)*(r-1.0)
+      source_test1d = 0.25*(1.0-r**2)*cos(t/3.0) + 3.0 + 3.0*sin(t/3.0)*fac
+   end function source_test1d
 
 end module source

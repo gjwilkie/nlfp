@@ -9,20 +9,29 @@
 
    xigrid_opt = "uniform"
 
-   r_0 = 0.0
-   r_end = 1.0
    rgrid_opt = "uniform"
 /
 
 &source_params
-   source_type = "test1D"
+   source_type = "test1d"
 /
 
 &diffusion_params
-   diffusion_type = "test1D"
+   diffusion_type = "test1d"
 /
 
 &init_params
-   initial_condition = "test1D"
+   initial_condition = "test1d"
+/
+
+&geometry_params
+   geometry_type = "cylindrical"
+   rmin = 0.0
+   rmax = 1.0
+/
+
+&time_params
+   dt = 0.01
+   Nt = 1000
 /
 

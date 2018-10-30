@@ -17,20 +17,29 @@ GIT_HASH='"$(GIT_MOD)$(shell git rev-list HEAD -n 1)"'
 OPTS = -g -cpp -ffree-line-length-none -DGIT_HASH=$(GIT_HASH)
 
 .DEFAULT_GOAL := nlfp
-nlfp: nlfp.o io.o mp.o constants.o
-	$(FLINKER) -o nlfp nlfp.o mp.o io.o constants.o -I${PETSC_DIR}/include $(PETSC_LIB) $(NETCDF_INC) $(NETCDF_LIB)
+nlfp: nlfp.o input.o output.o mp.o constants.o source.o diffusion.o distribution.o grids.o geometry.o
+	$(FLINKER) -o nlfp nlfp.o mp.o input.o output.o source.o diffusion.o distribution.o grids.o constants.o geometry.o -I${PETSC_DIR}/include $(PETSC_LIB) $(NETCDF_INC) $(NETCDF_LIB)
 
-nlfp.o: nlfp.f90  io.o mp.o
+nlfp.o: nlfp.f90  input.o mp.o grids.o output.o
 	$(FC) -c nlfp.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o nlfp.o
 
-io.o: io.f90 mp.o constants.o
-	$(FC) -c io.f90 $(OPTS) $(PETSC_FC_INCLUDES) $(NETCDF_INC) $(NETCDF_LIB) -o io.o
+input.o: input.f90 mp.o constants.o
+	$(FC) -c input.f90 $(OPTS) $(PETSC_FC_INCLUDES) $(NETCDF_INC) $(NETCDF_LIB) -o input.o
+
+output.o: output.f90 mp.o constants.o input.o
+	$(FC) -c output.f90 $(OPTS) $(PETSC_FC_INCLUDES) $(NETCDF_INC) $(NETCDF_LIB) -o output.o
 
 mp.o: mp.f90 
 	$(FC) -c mp.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o mp.o
 
 constants.o: constants.f90 
 	$(FC) -c constants.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o constants.o
+
+geometry.o: geometry.f90 input.o
+	$(FC) -c geometry.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o geometry.o
+
+grids.o: grids.f90 constants.o input.o
+	$(FC) -c grids.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o grids.o
 
 diffusion.o: diffusion.f90 
 	$(FC) -c diffusion.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o diffusion.o

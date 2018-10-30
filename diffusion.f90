@@ -3,17 +3,21 @@ module diffusion
 
    private
 
-   public:: calculate_diffcoeff_test1d
-   public:: calculate_advcoeff_test1d
+   public:: diffcoeff_test1d
+   public:: advcoeff_test1d
 
-   function calculate_diffcoeff_test1d(r,v,xi)
+   contains 
+
+   real function diffcoeff_test1d(r,v,xi)
       implicit none
+      real,intent(in)::r,v,xi
+      diffcoeff_test1d = exp(-r)
+   end function diffcoeff_test1d
 
-   end function calculate_diffcoeff_test1d(r,v,xi)
-
-   function calculate_advcoeff_test1d(r,v,xi)
+   real function advcoeff_test1d(r,v,xi)
       implicit none
-
-   end function calculate_advcoeff_test1d(r,v,xi)
+      real,intent(in)::r,v,xi
+      advcoeff_test1d = r**2
+   end function advcoeff_test1d
 
 end module diffusion
