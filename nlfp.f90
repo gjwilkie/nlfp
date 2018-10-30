@@ -48,7 +48,6 @@ character(len=64):: runname
       call write_initial_data()
    end if
 
-
    ! Finish output
    if (iproc == 0) then
       call finish_output()

@@ -8,13 +8,13 @@ module geometry
    contains
 
    function Vprime(r)
-      use input, only: geometry_type
+      use input, only: geometry_type, rmin, rmax
       implicit none
       real,dimension(:):: r
       real,dimension(size(r)):: Vprime
 
       if (geometry_type == "flat") then
-         Vprime(:) = 1.0   
+         Vprime(:) = 1.0
       else if (geometry_type == "cylindrical") then
          Vprime(:) = r
       end if
