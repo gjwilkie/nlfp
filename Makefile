@@ -10,6 +10,8 @@ GIT_MOD='"$(shell git diff-index HEAD)"'
 $(info $(GIT_MOD))
 ifneq ($(GIT_MOD),'""')
 	GIT_MOD=-Modified
+else
+	GIT_MOD=
 endif
 GIT_HASH='"$(shell git rev-list HEAD -n 1)$(GIT_MOD)"'
 $(info $(GIT_HASH))
