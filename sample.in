@@ -4,7 +4,7 @@
    Np = 1
    Nr = 100
 
-   pmax_mc = 1.0
+   pmax_mc = 2.0
    pgrid_opt = "uniform"
 
    xigrid_opt = "uniform"

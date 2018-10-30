@@ -27,6 +27,7 @@ integer :: Nt !< Total number of computational timesteps.
 
 private
 
+real :: pmax_mc
 
 contains
 
@@ -36,14 +37,13 @@ contains
       implicit none
       character(len=64), intent(in):: runname
       character(len=64) :: infile
+      integer:: inunit = 11,  inputerr
       namelist /grid_params/ Nxi,Np,Nr,pmax_mc,rgrid_opt,xigrid_opt,pgrid_opt
       namelist /init_params/ initial_condition
       namelist /diffusion_params/ diffusion_type
       namelist /source_params/ source_type
       namelist /geometry_params/ geometry_type,rmin,rmax
       namelist /time_params/ dt,Nt
-      integer:: inunit = 11, l, nargs, inputerr
-      real:: pmax_mc
 
       ! Open input file
       infile = trim(runname)//".in"
@@ -52,6 +52,8 @@ contains
          write(*,*) "ERROR: could not open file ",infile
          stop
       end if
+
+      call set_defaults()
 
       ! Read namelists. 
       read(inunit,nml=grid_params); rewind inunit
@@ -62,10 +64,54 @@ contains
       read(inunit,nml=time_params); rewind inunit
       close(inunit)
 
-      ! Rescale normalized input
-      pmax = pmax_mc * me*c
+      call parse_inputs()
 
 
    end subroutine init_input
+
+   subroutine set_defaults()
+      implicit none
+
+      Nr = 1; Np = 1; Nxi = 1
+      pmax = 2.0
+      pmax_mc = -1.0
+      rgrid_opt = "uniform"; pgrid_opt = "uniform"; xigrid_opt = "uniform"
+      initial_condition = "maxwellian"
+      diffusion_type = "none"
+      source_type = "none"
+      geometry_type = "flat"
+      rmin = 0.0
+      rmax = 1.0
+      dt = -1.0
+      Nt = 0
+
+   end subroutine set_defaults
+
+   subroutine parse_inputs()
+      implicit none
+
+      ! Rescale normalized input
+      if (pmax_mc > 0.0) then
+         pmax = pmax_mc * me * c
+      end if
+
+      ! Sanity checks
+      if ( (Nr == 1) .AND. (Np == 1) .AND. (Nxi == 1) ) then
+         print*, "ERROR: No resolutions set. Nothing to do."
+         stop
+      end if
+      if ( (Nr == 1) .AND. (diffusion_type == "none") ) then
+         print*, "WARNING: Running with spatial dependence, but no diffusion"
+      end if
+      if ( (dt < 0.0) .AND. (Nt > 0) ) then
+         print*, "ERROR: Running a finite number of timesteps, but no step size option has been defined."
+         stop
+      end if
+      if ( (dt > 0.0) .AND. (Nt == 0) ) then
+         print*, "WARNING: Time step has been set, but Nt=0, indicating a steady-state simulation. Are you sure?"
+         stop
+      end if
+         
+   end subroutine parse_inputs 
 
 end module input

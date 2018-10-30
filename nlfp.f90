@@ -12,10 +12,10 @@ use petscsnes
 !use mpi
 use input, only: init_input
 use output, only: init_output, write_initial_data, finish_output
-use mp, only: mp_end, mp_init, iproc, nproc
+use mp, only: mp_end, mp_init, iproc
 use grids, only: init_grids
 implicit none
-integer:: i, nargs, l
+integer::  nargs, l
 character(len=64):: runname
 
    ! Call basic initializations
@@ -44,7 +44,10 @@ character(len=64):: runname
 
    call init_grids()
 
-   call write_initial_data()
+   if (iproc == 0) then
+      call write_initial_data()
+   end if
+
 
    ! Finish output
    if (iproc == 0) then

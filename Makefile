@@ -1,10 +1,11 @@
 # Makefile for NFLP
 # Make sure NLFP_SYSTEM is a defined environment variable
-
 ifndef NLFP_SYSTEM
 $(error Set the environment variable NLFP_SYSTEM)
 endif
 include Makefiles/Makefile.$(NLFP_SYSTEM)
+
+OPTS = -g -Wall -cpp -ffree-line-length-none -DGIT_HASH=$(GIT_HASH)
 
 GIT_MOD='"$(shell git diff-index HEAD)"'
 ifneq ($(GIT_MOD),'""')
@@ -14,7 +15,6 @@ else
 endif
 GIT_HASH='"$(GIT_MOD)$(shell git rev-list HEAD -n 1)"'
 
-OPTS = -g -cpp -ffree-line-length-none -DGIT_HASH=$(GIT_HASH)
 
 .DEFAULT_GOAL := nlfp
 nlfp: nlfp.o input.o output.o mp.o constants.o source.o diffusion.o distribution.o grids.o geometry.o

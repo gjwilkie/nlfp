@@ -21,7 +21,7 @@ contains
       character(len=5):: timezone
       character(len=23):: datetime
 
-      integer:: inunit = 11, filesize, infiletext_id, infiletext_dim, hash_id, hash_dim, ioerr
+      integer:: inunit = 11, filesize , ioerr
 
       ! Define output file name from runname
       outfile = trim(runname)//".nc"
@@ -63,7 +63,12 @@ contains
    end subroutine init_output
 
    subroutine write_initial_data()
+      use grids
       implicit none
+
+      call check( nf90_put_var(ncid,rgrid_id,rgrid))
+      call check( nf90_put_var(ncid,pgrid_id,pgrid))
+      call check( nf90_put_var(ncid,xigrid_id,xigrid))
    end subroutine
 
    subroutine finish_output()

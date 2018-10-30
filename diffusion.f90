@@ -1,3 +1,8 @@
+! The diffusion (and advection) coefficient module for nlfp.
+! Diffusion coefficients are defined at cell centers (half-grid-points, same as f)
+! Advection coefficients are defined at the center of the cell face in the relevant dimension. 
+! For example, flux_x into the cell centered at [x_(i+1/2),y_(j+1/2),z_(k+1/2)] 
+!   is defined at [x_i, y_(j+1/2), z_(k+1/2)].
 module diffusion
    implicit none
 
