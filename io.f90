@@ -23,6 +23,7 @@ character(len=16) :: source_type !< Option specifying the source
 
 !!!!! Module-internal options
 integer :: ncid !> NetCDF control id for output file
+integer :: p_dim, r_dim, xi_dim !> NetCDF dimension ids
 character(len=64) runname !< The user-specified string which refers to the input and output files
 
 contains
@@ -106,7 +107,9 @@ contains
       close(inunit)
 
       ! Define dimensions
-!      call check( nf90_def_dim(ncid,"filestring_len",len(trim(inputfile_text)),infiletext_dim))
+      call check( nf90_def_dim(ncid,"r",Nr,r_dim))
+      call check( nf90_def_dim(ncid,"p",Np,p_dim))
+      call check( nf90_def_dim(ncid,"xi",Nxi,xi_dim))
 !      call check( nf90_def_dim(ncid,"hash_len",len(git_hash),hash_dim))
 
       ! Define variables

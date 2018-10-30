@@ -7,14 +7,12 @@ endif
 include Makefiles/Makefile.$(NLFP_SYSTEM)
 
 GIT_MOD='"$(shell git diff-index HEAD)"'
-$(info $(GIT_MOD))
 ifneq ($(GIT_MOD),'""')
 	GIT_MOD=Modified_from_
 else
 	GIT_MOD=
 endif
-GIT_HASH='"$(GIT_MOD)$(shell git rev-list HEAD -n 1)$(GIT_MOD)"'
-$(info $(GIT_HASH))
+GIT_HASH='"$(GIT_MOD)$(shell git rev-list HEAD -n 1)"'
 
 OPTS = -g -cpp -ffree-line-length-none -DGIT_HASH=$(GIT_HASH)
 
