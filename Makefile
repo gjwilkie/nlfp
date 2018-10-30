@@ -9,14 +9,14 @@ include Makefiles/Makefile.$(NLFP_SYSTEM)
 OPTS = -g -cpp -ffree-line-length-none
 
 .DEFAULT_GOAL := nlfp
-nlfp: nlfp.o inputoutput.o mp.o
-	$(FLINKER) -o nlfp nlfp.o mp.o inputoutput.o -I${PETSC_DIR}/include $(PETSC_LIB) $(NETCDF_INC) $(NETCDF_LIB)
+nlfp: nlfp.o io.o mp.o
+	$(FLINKER) -o nlfp nlfp.o mp.o io.o -I${PETSC_DIR}/include $(PETSC_LIB) $(NETCDF_INC) $(NETCDF_LIB)
 
-nlfp.o: nlfp.f90  inputoutput.o mp.o
+nlfp.o: nlfp.f90  io.o mp.o
 	$(FC) -c nlfp.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o nlfp.o
 
-inputoutput.o: inputoutput.f90  mp.o
-	$(FC) -c inputoutput.f90 $(OPTS) $(PETSC_FC_INCLUDES) $(NETCDF_INC) $(NETCDF_LIB) -o inputoutput.o
+io.o: io.f90  mp.o
+	$(FC) -c io.f90 $(OPTS) $(PETSC_FC_INCLUDES) $(NETCDF_INC) $(NETCDF_LIB) -o io.o
 
 mp.o: mp.f90 
 	$(FC) -c mp.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o mp.o

@@ -11,7 +11,7 @@ program NLFP
 use petscsnes
 use mpi
 !use nlfp_main
-use inputoutput, only: read_input, close_output, init_output
+use io, only: read_input, close_output, init_output
 use mp, only: mp_end, mp_init, iproc, nproc
 implicit none
 integer:: i, nargs, l

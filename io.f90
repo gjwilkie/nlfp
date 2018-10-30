@@ -1,4 +1,4 @@
-module inputoutput
+module io
 use mp
 use netcdf
 implicit none
@@ -97,4 +97,4 @@ contains
          ioerr= nf90_close(ncid)
    end subroutine
 
-end module inputoutput
+end module io
