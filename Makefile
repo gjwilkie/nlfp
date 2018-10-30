@@ -6,7 +6,12 @@ $(error Set the environment variable NLFP_SYSTEM)
 endif
 include Makefiles/Makefile.$(NLFP_SYSTEM)
 
-GIT_HASH='"$(shell git rev-list HEAD -n 1)"'
+GIT_MOD='"$(shell git diff-index HEAD)"'
+ifdef GIT_MOD
+	GIT_MOD=-Modified
+endif
+GIT_HASH='"$(shell git rev-list HEAD -n 1)$(GIT_MOD)"'
+$(info $(GIT_HASH))
 
 OPTS = -g -cpp -ffree-line-length-none -DGIT_HASH=$(GIT_HASH)
 
