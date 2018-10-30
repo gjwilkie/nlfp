@@ -11,10 +11,13 @@ program NLFP
 use petscsnes
 use mpi
 !use nlfp_main
-use inputoutput, only: read_input, close_output
+use inputoutput, only: read_input, close_output, init_output
+use mp, only: mp_end, mp_init, iproc, nproc
 implicit none
-integer:: i, nargs, l, iproc,nproc
+integer:: i, nargs, l
 character(len=100)::arg, runname
+
+   call mp_init()
 
    ! Get the run name from command line.
    nargs= command_argument_count() 

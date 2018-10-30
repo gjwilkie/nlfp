@@ -3,7 +3,7 @@ use mp
 use netcdf
 implicit none
 
-public :: Nr, Nxi, Np, ncid, ncerr
+public :: Nr, Nxi, Np, ncid, ioerr
 
 
 
@@ -17,7 +17,7 @@ integer :: Np
 integer :: Nxi
 
 !> NetCDF control ids
-integer :: ncid, ncerr
+integer :: ncid, ioerr
 
 !> The user-specified string which refers to the input and output files
 character(len=100) runname
@@ -40,7 +40,7 @@ contains
       character(len=100), intent(in):: runname
       character(len=100) :: infile
       namelist /grid_knobs/ Nxi, Np, Nr
-      integer:: inunit = 11, ioerr
+      integer:: inunit = 11
 
       call set_runname(runname)
 
@@ -62,7 +62,7 @@ contains
       implicit none
       character(len=100) :: outfile, infile
       character(:), allocatable:: inputfile_text
-      integer:: ncerr, ncid, inunit = 11, filesize, ioerr, infile_id, version_id
+      integer:: inunit = 11, filesize
 
       ! Define output file name from runname
       outfile = trim(runname)//".nc"
@@ -77,24 +77,24 @@ contains
 
 
       ! Create output file
-      ncerr = nf90_create(outfile, NF90_CLOBBER, ncid)
-      if (ncerr /= 0) then
-         write(*,*) "ERROR: nf90_create returned error code ",ncerr, " when opening file ",outfile
+      ioerr = nf90_create(outfile, NF90_CLOBBER, ncid)
+      if (ioerr /= 0) then
+         write(*,*) "ERROR: nf90_create returned error code ",ioerr, " when opening file ",outfile
          stop
       end if
 
       ! Write the input file used as a global attribute
-      ncerr = nf90_put_att(ncid,NF90_GLOBAL,"inputfile_text",inputfile_text)
-      if (ncerr /= 0) then
+      ioerr = nf90_put_att(ncid,NF90_GLOBAL,"inputfile_text",inputfile_text)
+      if (ioerr /= 0) then
          print*, "ERROR: NetCDF could not write attribute inputfile_txt"
-         print*, ncerr
+         print*, ioerr
       end if
    
    end subroutine
 
    subroutine close_output()
          implicit none
-         nf90_close(ncid)
+         ioerr= nf90_close(ncid)
    end subroutine
 
 end module inputoutput
