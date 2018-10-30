@@ -6,6 +6,10 @@ use petscsnes
 use mpi
    implicit none
 
+   private
+
+   public :: mp_init, mp_end
+
    !> Integer representing the process index
    public :: iproc
 
