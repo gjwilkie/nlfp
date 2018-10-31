@@ -8,7 +8,7 @@ use mpi
 
    private
 
-   public :: mp_init, mp_end
+   public :: mp_init, mp_end, snes
 
    !> Integer representing the process index
    public :: iproc
@@ -21,6 +21,7 @@ use mpi
 
    PetscMPIInt:: iproc,nproc
    PetscErrorCode:: ierr
+   SNES:: snes
 
    contains
 
@@ -32,6 +33,12 @@ use mpi
          stop
       endif
 
+      call SNESCreate(PETSC_COMM_WORLD,snes,ierr)
+      if (ierr .ne. 0) then
+         print*, "Unable to initialize SNES"
+         stop
+      endif
+
       call MPI_Comm_size(PETSC_COMM_WORLD,nproc,ierr)
       call MPI_Comm_rank(PETSC_COMM_WORLD,iproc,ierr)
   
@@ -39,6 +46,7 @@ use mpi
 
    subroutine mp_end()
       implicit none
+      call SNESDestroy(snes,ierr)
       call PetscFinalize(ierr)
    end subroutine mp_end
 

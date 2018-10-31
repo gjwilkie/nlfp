@@ -12,6 +12,9 @@ use petscsnes
 !use mpi
 use input, only: init_input
 use output, only: init_output, write_initial_data, finish_output
+use source, only: init_source
+use diffusion, only: init_diffusion
+use matrix, only: init_matrix
 use mp, only: mp_end, mp_init, iproc
 use grids, only: init_grids
 implicit none
@@ -43,6 +46,10 @@ character(len=64):: runname
    end if
 
    call init_grids()
+
+   call init_source()
+
+   call init_matrix()
 
    if (iproc == 0) then
       call write_initial_data()

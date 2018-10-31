@@ -36,5 +36,9 @@
 /
 
 &control_params
-   variable_order="xrp"
+   layout="xrp"
+/
+
+&physics_params
+   efield_option = "none"
 /

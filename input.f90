@@ -9,7 +9,7 @@ public :: Nr, Nx, Np, rmin, rmax, rgrid_opt,pgrid_opt,xgrid_opt, pmax
 public :: initial_condition,diffusion_type,source_type,geometry_type
 public :: dt,Nt, layout
 public :: set_resolutions, set_layout, set_gridopts_uniform
-
+public :: efield_option, nonlinear
 
 !!!!! Input options
 integer :: Nr !< Number of spatial grid points
@@ -24,8 +24,11 @@ character(len=16) :: source_type !< Option specifying the source
 character(len=16) :: geometry_type !< Option specifying the geometry
 real :: dt !< Time step size in seconds. Input may be otherwise normalized.
 integer :: Nt !< Total number of computational timesteps.
-character(len=3) :: layout
+character(len=3) :: layout !< 3-character string specifying the order in which the coordinates are laid out in memory.
+character(len=16) :: efield_option !< Option determining the behavior of the electric field: "none", "diffusive", "constant", "time"
 
+! Input-derived paramters
+logical:: nonlinear !< Determines weather a nonlinear solve is needed
 
 private
 
@@ -47,6 +50,7 @@ contains
       namelist /geometry_params/ geometry_type,rmin,rmax
       namelist /time_params/ dt,Nt
       namelist /control_params/ layout
+      namelist /physics_params/ efield_option
 
       ! Open input file
       infile = trim(runname)//".in"
@@ -66,6 +70,7 @@ contains
       read(inunit,nml=geometry_params); rewind inunit
       read(inunit,nml=time_params); rewind inunit
       read(inunit,nml=control_params); rewind inunit
+      read(inunit,nml=physics_params); rewind inunit
       close(inunit)
 
       call parse_inputs()
