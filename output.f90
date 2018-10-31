@@ -7,8 +7,8 @@ public:: init_output, write_initial_data, finish_output
 private
 
 integer :: ncid !> NetCDF control id for output file
-integer :: r_dim,p_dim,xi_dim
-integer :: pgrid_id,xigrid_id,rgrid_id
+integer :: r_dim,p_dim,x_dim
+integer :: pgrid_id,xgrid_id,rgrid_id
 
 contains
    subroutine init_output(runname)
@@ -45,12 +45,12 @@ contains
       ! Define dimensions
       call check( nf90_def_dim(ncid,"r",Nr,r_dim))
       call check( nf90_def_dim(ncid,"p",Np,p_dim))
-      call check( nf90_def_dim(ncid,"xi",Nxi,xi_dim))
+      call check( nf90_def_dim(ncid,"x",Nx,x_dim))
 
       ! Define variables
       call check( nf90_def_var(ncid,"rgrid",NF90_DOUBLE,r_dim,rgrid_id) )
       call check( nf90_def_var(ncid,"pgrid",NF90_DOUBLE,p_dim,pgrid_id) )
-      call check( nf90_def_var(ncid,"xigrid",NF90_DOUBLE,xi_dim,xigrid_id) )
+      call check( nf90_def_var(ncid,"xgrid",NF90_DOUBLE,x_dim,xgrid_id) )
 
       ! Write some global attributes
       call check( nf90_put_att(ncid,NF90_GLOBAL,"inputfile_text",inputfile_text))
@@ -68,7 +68,7 @@ contains
 
       call check( nf90_put_var(ncid,rgrid_id,rgrid))
       call check( nf90_put_var(ncid,pgrid_id,pgrid))
-      call check( nf90_put_var(ncid,xigrid_id,xigrid))
+      call check( nf90_put_var(ncid,xgrid_id,xgrid))
    end subroutine
 
    subroutine finish_output()

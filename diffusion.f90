@@ -13,15 +13,15 @@ module diffusion
 
    contains 
 
-   real function diffcoeff_test1d(r,v,xi)
+   real function diffcoeff_test1d(r,v,x)
       implicit none
-      real,intent(in)::r,v,xi
+      real,intent(in)::r,v,x
       diffcoeff_test1d = exp(-r)
    end function diffcoeff_test1d
 
-   real function advcoeff_test1d(r,v,xi)
+   real function advcoeff_test1d(r,v,x)
       implicit none
-      real,intent(in)::r,v,xi
+      real,intent(in)::r,v,x
       advcoeff_test1d = r**2
    end function advcoeff_test1d
 

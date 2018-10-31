@@ -1,13 +1,13 @@
 
 &grid_params
-   Nxi = 1
+   Nx = 1
    Np = 1
    Nr = 100
 
    pmax_mc = 2.0
    pgrid_opt = "uniform"
 
-   xigrid_opt = "uniform"
+   xgrid_opt = "uniform"
 
    rgrid_opt = "uniform"
 /
@@ -35,3 +35,6 @@
    Nt = 1000
 /
 
+&control_params
+   variable_order="xrp"
+/

@@ -7,9 +7,9 @@ module distribution
 
    contains 
 
-   real function initialdistribution_test1d(r,v,xi)
+   real function initialdistribution_test1d(r,v,x)
       implicit none
-      real,intent(in)::r,v,xi
+      real,intent(in)::r,v,x
 
       initialdistribution_test1d = 1.0
 

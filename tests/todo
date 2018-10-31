@@ -1,0 +1,9 @@
+Tests to perform:
+
+a. Test index function return the expected value
+
+1. Constructed time-dependent solution with 1D diffusion
+2. Steady-state Maxwellian in energy space
+3. Steady-state Maxwellian in 2D velocity space
+4. Constructed linear solution in 3D
+5. Constructed nonlinear solution in 3D

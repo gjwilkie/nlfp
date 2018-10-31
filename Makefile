@@ -26,7 +26,7 @@ nlfp.o: nlfp.f90  input.o mp.o grids.o output.o
 input.o: input.f90 mp.o constants.o
 	$(FC) -c input.f90 $(OPTS) $(PETSC_FC_INCLUDES) $(NETCDF_INC) $(NETCDF_LIB) -o input.o
 
-output.o: output.f90 mp.o constants.o input.o
+output.o: output.f90 mp.o constants.o input.o grids.o
 	$(FC) -c output.f90 $(OPTS) $(PETSC_FC_INCLUDES) $(NETCDF_INC) $(NETCDF_LIB) -o output.o
 
 mp.o: mp.f90 
