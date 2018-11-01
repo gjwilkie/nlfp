@@ -14,7 +14,7 @@ use input, only: init_input
 use output, only: init_output, write_initial_data, finish_output
 use source, only: init_source
 use diffusion, only: init_diffusion
-use matrix, only: init_matrix
+use matrix, only: init_matrix, build_matrix
 use mp, only: mp_end, mp_init, iproc
 use grids, only: init_grids
 implicit none
@@ -54,6 +54,8 @@ character(len=64):: runname
    if (iproc == 0) then
       call write_initial_data()
    end if
+
+   call build_matrix
 
    ! Finish output
    if (iproc == 0) then

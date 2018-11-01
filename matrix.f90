@@ -4,9 +4,9 @@ module matrix
 use petscsnes
 implicit none
 
-public :: init_matrix, matrix_size
+public :: init_matrix, matrix_size, build_matrix
 
-integer :: matrix_size
+PetscInt :: matrix_size
 
 private
 
@@ -33,5 +33,11 @@ contains
       call init_distribution(stateVector)
 
    end subroutine init_matrix
+
+   subroutine build_matrix()
+      use input
+      implicit none
+
+   end subroutine
 
 end module matrix
