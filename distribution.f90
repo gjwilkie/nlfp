@@ -13,6 +13,8 @@ use petscsnes
       use input
       use mp
       implicit none
+      integer:: firstLocalRow, lastLocalRow
+
       Vec,intent(inout)::f0
       select case (initial_condition)
       case ("test1d")
@@ -24,7 +26,7 @@ use petscsnes
 
       call VecAssemblyBegin(f0,ierr)
       call VecAssemblyEnd(f0,ierr)
-       
+
    end subroutine init_distribution
 
    real function initialdistribution_test1d(r,v,x)

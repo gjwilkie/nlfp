@@ -1,7 +1,7 @@
 !> Includes routines and wrappers needed globally to handle PETSc and MPI
 module mp
 #include <petsc/finclude/petscsnes.h>
-#include <petsc/finclude/petscvec.h>
+#include <petsc/finclude/petscsys.h>
 use petscsnes
 use mpi
    implicit none
@@ -28,6 +28,7 @@ use mpi
    subroutine mp_init()
 
       call PetscInitialize(PETSC_NULL_CHARACTER,ierr)
+!      call PetscInitialize("options",ierr)
       if (ierr .ne. 0) then
          print*, "Unable to initialize PETSc"
          stop
@@ -41,7 +42,7 @@ use mpi
 
       call MPI_Comm_size(PETSC_COMM_WORLD,nproc,ierr)
       call MPI_Comm_rank(PETSC_COMM_WORLD,iproc,ierr)
-  
+
    end subroutine mp_init
 
    subroutine mp_end()
