@@ -8,7 +8,7 @@ use mpi
 
    private
 
-   public :: mp_init, mp_end, snes
+   public :: mp_init, mp_end, snes, mpicomm
 
    !> Integer representing the process index
    public :: iproc
@@ -22,6 +22,7 @@ use mpi
    PetscMPIInt:: iproc,nproc
    PetscErrorCode:: ierr
    SNES:: snes
+   MPI_Comm:: mpicomm
 
    contains
 
@@ -33,6 +34,8 @@ use mpi
          print*, "Unable to initialize PETSc"
          stop
       endif
+
+      mpicomm = PETSC_COMM_WORLD
 
       call SNESCreate(PETSC_COMM_WORLD,snes,ierr)
       if (ierr .ne. 0) then

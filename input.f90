@@ -9,7 +9,7 @@ public :: Nr, Nx, Np, rmin, rmax, rgrid_opt,pgrid_opt,xgrid_opt, pmax
 public :: initial_condition,diffusion_type,source_type,geometry_type
 public :: dt,Nt, layout
 public :: set_resolutions, set_layout, set_gridopts_uniform
-public :: efield_option, nonlinear
+public :: efield_option, nonlinear, N_ordered
 
 !!!!! Input options
 integer :: Nr !< Number of spatial grid points
@@ -26,6 +26,7 @@ real :: dt !< Time step size in seconds. Input may be otherwise normalized.
 integer :: Nt !< Total number of computational timesteps.
 character(len=3) :: layout !< 3-character string specifying the order in which the coordinates are laid out in memory.
 character(len=16) :: efield_option !< Option determining the behavior of the electric field: "none", "diffusive", "constant", "time"
+integer,dimension(3) :: N_ordered !< The resolutions in each dimension according to the chosen layout
 
 ! Input-derived paramters
 logical:: nonlinear !< Determines weather a nonlinear solve is needed
@@ -73,7 +74,7 @@ contains
       read(inunit,nml=physics_params); rewind inunit
       close(inunit)
 
-      call parse_inputs()
+      call process_inputs()
 
 
    end subroutine init_input
@@ -89,6 +90,7 @@ contains
       diffusion_type = "none"
       source_type = "none"
       geometry_type = "flat"
+      layout = "rxp"
       rmin = 0.0
       rmax = 1.0
       dt = -1.0
@@ -96,13 +98,29 @@ contains
 
    end subroutine set_defaults
 
-   subroutine parse_inputs()
+   subroutine process_inputs()
       implicit none
+      integer:: i
 
       ! Rescale normalized input
       if (pmax_mc > 0.0) then
          pmax = pmax_mc * me * c
       end if
+
+      ! Set N_ordered according to layout
+      do i =1,3
+         select case (layout(i:i))
+         case ("r")
+            N_ordered(i) = Nr
+         case ("x")
+            N_ordered(i) = Nx
+         case ("p")
+            N_ordered(i) = Np
+         case default
+            print*,"ERROR: layout character ",layout(i:i)," not recognized."
+            stop
+         end select
+      end do
 
       ! Sanity checks
       if ( (Nr == 1) .AND. (Np == 1) .AND. (Nx == 1) ) then
@@ -121,7 +139,7 @@ contains
          stop
       end if
          
-   end subroutine parse_inputs 
+   end subroutine process_inputs 
 
    subroutine set_layout(layout_in)
       implicit none
