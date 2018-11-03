@@ -3,13 +3,13 @@ module distribution
 use petscsnes
    implicit none
 
-   public:: initialdistribution_test1d, init_distribution
+   public:: set_initDistribution
 
    private
 
    contains 
 
-   subroutine init_distribution(f0)
+   subroutine set_initDistribution(f0)
       use input
       use mp
       implicit none
@@ -30,14 +30,6 @@ use petscsnes
       call VecAssemblyBegin(f0,ierr)
       call VecAssemblyEnd(f0,ierr)
 
-   end subroutine init_distribution
-
-   real function initialdistribution_test1d(r,v,x)
-      implicit none
-      real,intent(in)::r,v,x
-
-      initialdistribution_test1d = 1.0
-
-   end function initialdistribution_test1d
+   end subroutine set_initDistribution
 
 end module distribution

@@ -20,6 +20,7 @@ private
 
 Vec:: stateVector, rhs, residualVector
 Mat:: global_matrix
+KSP:: ksp
 
 interface SNESSetApplicationContext
    subroutine SNESSetApplicationContext(snes_in,ctx,localerr)
@@ -118,17 +119,22 @@ contains
       call MatMPIAIJSetPreallocation(global_matrix, 0, nNonZeros_ondiag(firstLocalRow:lastLocalRow), &
             0, nNonZeros_offdiag(firstLocalRow:lastLocalRow),ierr)
          
-      ! Create state vector
+      ! Create state vector, RHS, and residual vector
       call VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, matrix_size, stateVector, ierr)
       call VecDuplicate(stateVector, residualVector, ierr)
-!      call VecDuplicate(stateVector, rhs, ierr)
+      call VecDuplicate(stateVector, rhs, ierr)
 
-      call init_distribution(stateVector)
+      ! Initialize the state vector
+      call set_initDistribution(stateVector)
 
       ! Define context for residual functions
       ctx%opt=0
 
-      call SNESSetFunction(snes, residualVector, residual_func, ctx,ierr)
+      call SNESSetFunction(snes, residualVector, residual_func, ctx, ierr)
+
+      call SNESSetJacobian(snes, global_matrix, global_matrix, jacobian_func, ctx, ierr)
+
+      call SNESGetKSP(snes, ksp, ierr)
 
       deallocate(nNonZeros_offdiag)
       deallocate(nNonZeros_ondiag)
@@ -150,9 +156,18 @@ contains
       type(resContext):: context
       PetscErrorCode:: localerr
 
-
    end subroutine residual_func
 
+   subroutine jacobian_func(snes_in, stateVector, matrix_local, matrix_pc, context, localerr)
+      use matrix_submodule
+      implicit none
+      SNES:: snes_in
+      Vec,intent(in):: stateVector
+      Mat:: matrix_local, matrix_pc
+      type(resContext):: context
+      PetscErrorCode:: localerr
+
+   end subroutine jacobian_func
 
    subroutine build_matrix()
       use input
