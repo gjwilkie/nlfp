@@ -14,7 +14,7 @@ use input, only: init_input
 use output, only: init_output, write_initial_data, finish_output
 use source, only: init_source
 use diffusion, only: init_diffusion
-use matrix, only: init_matrix, build_matrix, init_precomputes
+use matrix, only: init_matrix, init_precomputes, finish_matrix
 use mp, only: mp_end, mp_init, iproc
 use grids, only: init_grids
 implicit none
@@ -57,12 +57,12 @@ character(len=64):: runname
       call write_initial_data()
    end if
 
-   call build_matrix
-
    ! Finish output
    if (iproc == 0) then
       call finish_output()
    end if
+
+   call finish_matrix()
 
    ! Finish mpi and PETSc
    call mp_end()

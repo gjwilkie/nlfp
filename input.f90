@@ -7,7 +7,7 @@ implicit none
 public :: init_input
 public :: Nr, Nx, Np, rmin, rmax, rgrid_opt,pgrid_opt,xgrid_opt, pmax, rmaj
 public :: initial_condition,diffusion_type,source_type,geometry_type
-public :: dt,Nt, layout
+public :: dt,Nt, layout, solver_tol
 public :: set_resolutions, set_layout, set_gridopts_uniform
 public :: efield_option, nonlinear, N_ordered
 
@@ -28,6 +28,7 @@ character(len=3) :: layout !< 3-character string specifying the order in which t
 character(len=16) :: efield_option !< Option determining the behavior of the electric field: "none", "diffusive", "constant", "time"
 integer,dimension(3) :: N_ordered !< The resolutions in each dimension according to the chosen layout
 real :: rmaj !< Major radius or other normalizing quantity. Used in calculating volume integral.
+real :: solver_tol !< Relative tolerance for the iterative solver, negative for direct solve
 
 ! Input-derived paramters
 logical:: nonlinear !< Determines weather a nonlinear solve is needed
@@ -51,7 +52,7 @@ contains
       namelist /source_params/ source_type
       namelist /geometry_params/ geometry_type,rmin,rmax, rmaj
       namelist /time_params/ dt,Nt
-      namelist /control_params/ layout
+      namelist /control_params/ layout, solver_tol
       namelist /physics_params/ efield_option
 
       ! Open input file
@@ -92,6 +93,7 @@ contains
       source_type = "none"
       geometry_type = "flat"
       layout = "rxp"
+      solver_tol = 1.0e-4
       rmin = 0.0
       rmax = 1.0
       dt = -1.0

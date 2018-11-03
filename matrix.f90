@@ -12,7 +12,7 @@ module matrix
 use petscsnes
 implicit none
 
-public :: init_matrix, matrix_size, build_matrix, init_precomputes
+public :: init_matrix, matrix_size, finish_matrix, init_precomputes
 
 PetscInt :: matrix_size
 
@@ -20,7 +20,6 @@ private
 
 Vec:: stateVector, rhs, residualVector
 Mat:: global_matrix
-KSP:: ksp
 
 interface SNESSetApplicationContext
    subroutine SNESSetApplicationContext(snes_in,ctx,localerr)
@@ -41,9 +40,14 @@ contains
       implicit none
       integer,dimension(:),allocatable:: nNonZeros_offdiag, nNonZeros_ondiag
       integer:: firstLocalRow,lastLocalRow, i, j
+      real:: rtol,atol,stol
+      integer:: maxit, maxf
       PetscMPIInt:: jproc
       PetscInt:: cumRows
       type(resContext):: ctx
+      KSP:: ksp
+      PC:: pc
+      PetscViewerAndFormat:: viewer
 
       ! Determine size of matrix
       matrix_size = Nr*Np*Nx
@@ -134,7 +138,30 @@ contains
 
       call SNESSetJacobian(snes, global_matrix, global_matrix, jacobian_func, ctx, ierr)
 
-      call SNESGetKSP(snes, ksp, ierr)
+      call SNESGetKSP(snes,ksp,ierr)
+
+      call KSPGetPC(ksp,pc,ierr)
+      call PCSetType(pc,PCLU,ierr)
+      if (solver_tol < 0.0) then
+
+         print*, "ERROR: Direct solver not yet implemented"
+         stop
+
+      else
+
+         call KSPSetType(ksp,KSPGMRES,ierr)
+         call KSPSetTolerances(ksp,solver_tol,PETSC_DEFAULT_REAL,PETSC_DEFAULT_REAL,PETSC_DEFAULT_INTEGER,ierr)
+         call PetscViewerAndFormatCreate(PETSC_VIEWER_STDOUT_WORLD,PETSC_VIEWER_DEFAULT,viewer,ierr)
+         call KSPMonitorSet(ksp,KSPMonitorDefault,viewer,PetscViewerAndFormatDestroy,ierr)
+
+      end if
+      call KSPSetFromOptions(ksp,ierr)
+
+      if (nonlinear) then
+         call SNESSetType(snes, SNESNEWTONLS, ierr)
+      else
+         call SNESSetType(snes, SNESKSPONLY, ierr)
+      end if
 
       deallocate(nNonZeros_offdiag)
       deallocate(nNonZeros_ondiag)
@@ -169,10 +196,15 @@ contains
 
    end subroutine jacobian_func
 
-   subroutine build_matrix()
-      use input
+   subroutine finish_matrix()
+      use mp
       implicit none
 
-   end subroutine
+      call VecDestroy(stateVector,ierr)
+      call VecDestroy(rhs,ierr)
+      call VecDestroy(residualVector,ierr)
+      call MatDestroy(global_matrix,ierr)
+
+   end subroutine finish_matrix
 
 end module matrix

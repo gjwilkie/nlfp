@@ -37,6 +37,7 @@
 
 &control_params
    layout="rxp"
+   solver_tol = 1.0e-4
 /
 
 &physics_params
