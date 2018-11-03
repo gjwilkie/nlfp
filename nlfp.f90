@@ -14,7 +14,8 @@ use input, only: init_input
 use output, only: init_output, write_initial_data, finish_output
 use source, only: init_source
 use diffusion, only: init_diffusion
-use matrix, only: init_matrix, init_precomputes, finish_matrix
+use matrix, only: init_matrix, finish_matrix
+use contexts, only: init_precomputes
 use mp, only: mp_end, mp_init, iproc
 use grids, only: init_grids
 implicit none

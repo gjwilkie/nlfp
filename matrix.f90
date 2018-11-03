@@ -4,7 +4,7 @@ module matrix
 use petscsnes
 implicit none
 
-public :: init_matrix, matrix_size, finish_matrix, init_precomputes
+public :: init_matrix, matrix_size, finish_matrix
 
 PetscInt :: matrix_size
 
@@ -165,11 +165,6 @@ contains
 
    end subroutine init_matrix
 
-   subroutine init_precomputes()
-      use input
-      implicit none
-
-   end subroutine
 
    subroutine finish_matrix()
       use mp
