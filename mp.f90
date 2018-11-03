@@ -8,7 +8,7 @@ use mpi
 
    private
 
-   public :: mp_init, mp_end, snes, mpicomm
+   public :: mp_init, mp_end, snes, mpicomm, localNrows
 
    !> Integer representing the process index
    public :: iproc
@@ -23,6 +23,7 @@ use mpi
    PetscErrorCode:: ierr
    SNES:: snes
    MPI_Comm:: mpicomm
+   integer:: localNrows
 
    contains
 

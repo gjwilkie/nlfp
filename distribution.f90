@@ -14,9 +14,12 @@ use petscsnes
       use mp
       implicit none
       integer:: firstLocalRow, lastLocalRow
-
       Vec,intent(inout)::f0
+
+      ! Set the initial distribution
       select case (initial_condition)
+      case ("zero")
+         call VecSet(f0,0.0,ierr)
       case ("test1d")
          call VecSet(f0,1.0,ierr)
       case default

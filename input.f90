@@ -5,7 +5,7 @@ use constants
 implicit none
 
 public :: init_input
-public :: Nr, Nx, Np, rmin, rmax, rgrid_opt,pgrid_opt,xgrid_opt, pmax
+public :: Nr, Nx, Np, rmin, rmax, rgrid_opt,pgrid_opt,xgrid_opt, pmax, rmaj
 public :: initial_condition,diffusion_type,source_type,geometry_type
 public :: dt,Nt, layout
 public :: set_resolutions, set_layout, set_gridopts_uniform
@@ -27,6 +27,7 @@ integer :: Nt !< Total number of computational timesteps.
 character(len=3) :: layout !< 3-character string specifying the order in which the coordinates are laid out in memory.
 character(len=16) :: efield_option !< Option determining the behavior of the electric field: "none", "diffusive", "constant", "time"
 integer,dimension(3) :: N_ordered !< The resolutions in each dimension according to the chosen layout
+real :: rmaj !< Major radius or other normalizing quantity. Used in calculating volume integral.
 
 ! Input-derived paramters
 logical:: nonlinear !< Determines weather a nonlinear solve is needed
@@ -48,7 +49,7 @@ contains
       namelist /init_params/ initial_condition
       namelist /diffusion_params/ diffusion_type
       namelist /source_params/ source_type
-      namelist /geometry_params/ geometry_type,rmin,rmax
+      namelist /geometry_params/ geometry_type,rmin,rmax, rmaj
       namelist /time_params/ dt,Nt
       namelist /control_params/ layout
       namelist /physics_params/ efield_option

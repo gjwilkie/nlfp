@@ -5,9 +5,11 @@ module grids
 
    public :: init_grids,rgrid,pgrid,xgrid,rgrid_edge,pgrid_edge,xgrid_edge
    public :: get_idx, get_idx_r, get_idx_p, get_idx_x
+   public :: d3p, d3r
 
-   real, dimension(:), allocatable:: rgrid, pgrid, xgrid
+   real, dimension(:), allocatable:: rgrid, pgrid, xgrid, d3r
    real, dimension(:), allocatable:: rgrid_edge, pgrid_edge, xgrid_edge
+   real, dimension(:,:), allocatable:: d3p
 
    private
    abstract interface
@@ -29,7 +31,10 @@ module grids
 
    subroutine init_grids()
       use input
+      use geometry, only:Vprime
+      use constants
       implicit none
+      integer:: ip, ir, ix
 
       allocate(rgrid(Nr))
       allocate(pgrid(Np))
@@ -37,6 +42,8 @@ module grids
       allocate(rgrid_edge(Nr+1))
       allocate(pgrid_edge(Np+1))
       allocate(xgrid_edge(Nx+1))
+      allocate(d3p(Np,Nx))
+      allocate(d3r(Nr))
 
       if (rgrid_opt == "uniform") then
          call get_grid_uniform(Nr,rmin,rmax,rgrid,rgrid_edge)
@@ -58,6 +65,16 @@ module grids
          print*, "ERROR: xgrid_opt ",xgrid_opt," not valid"
          stop
       end if
+
+      do ip = 1,Np
+         do ix = 1,Nx
+            d3p(ip,ix) = 2*pi*pgrid(ip)**2*(pgrid_edge(ip+1)-xgrid_edge(ip))*(xgrid_edge(ix+1)-xgrid_edge(ix))
+         end do
+      end do
+            
+      do ir = 1,Nr
+         d3r(ir) = (rgrid_edge(ir+1)-rgrid_edge(ir))*Vprime(rgrid(ir))
+      end do
 
       select case (layout)
       case ("xrp")
@@ -270,9 +287,6 @@ module grids
       integer,intent(in):: idx
       idx_r_xrp=(mod(idx-1,Np*Nr))/Np + 1
    end function idx_r_xrp
-
-
-
 
 end module grids
    
