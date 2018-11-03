@@ -17,8 +17,8 @@ GIT_HASH='"$(GIT_MOD)$(shell git rev-list HEAD -n 1)"'
 
 
 .DEFAULT_GOAL := nlfp
-nlfp: nlfp.o input.o output.o mp.o constants.o source.o diffusion.o distribution.o grids.o geometry.o matrix.o
-	$(FLINKER) -o nlfp nlfp.o mp.o input.o output.o source.o diffusion.o distribution.o grids.o constants.o geometry.o matrix.o -I${PETSC_DIR}/include $(PETSC_LIB) $(NETCDF_INC) $(NETCDF_LIB)
+nlfp: nlfp.o input.o output.o mp.o constants.o source.o diffusion.o distribution.o grids.o geometry.o matrix.o residual.o contexts.o
+	$(FLINKER) -o nlfp nlfp.o mp.o input.o output.o source.o diffusion.o distribution.o grids.o constants.o geometry.o matrix.o residual.o contexts.o -I${PETSC_DIR}/include $(PETSC_LIB) $(NETCDF_INC) $(NETCDF_LIB)
 
 nlfp.o: nlfp.f90  input.o mp.o grids.o output.o matrix.o source.o
 	$(FC) -c nlfp.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o nlfp.o
@@ -32,7 +32,7 @@ output.o: output.f90 mp.o constants.o input.o grids.o
 mp.o: mp.f90 
 	$(FC) -c mp.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o mp.o
 
-matrix.o: matrix.f90 diffusion.o geometry.o source.o mp.o
+matrix.o: matrix.f90 diffusion.o geometry.o source.o mp.o contexts.o residual.o
 	$(FC) -c matrix.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o matrix.o
 
 constants.o: constants.f90 
@@ -52,6 +52,12 @@ source.o: source.f90 input.o
 
 distribution.o: distribution.f90 
 	$(FC) -c distribution.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o distribution.o
+
+residual.o: residual.f90 contexts.o
+	$(FC) -c residual.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o residual.o
+
+contexts.o: contexts.f90 
+	$(FC) -c contexts.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o contexts.o
 
 tests::
 	make -C tests/test_index -B

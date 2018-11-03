@@ -1,11 +1,3 @@
-!> Defines some things that don't really belong anywhere else
-module matrix_submodule
-   public:: resContext
-   type resContext
-      integer:: opt
-   end type resContext
-end module matrix_submodule
-
 !> Where the matrix gets built
 module matrix
 #include <petsc/finclude/petscsnes.h>
@@ -24,7 +16,7 @@ Mat:: global_matrix
 interface SNESSetApplicationContext
    subroutine SNESSetApplicationContext(snes_in,ctx,localerr)
       use petscsnes
-      use matrix_submodule
+      use contexts
       SNES:: snes_in
       type(resContext),intent(in):: ctx
       PetscErrorCode:: localerr
@@ -36,7 +28,7 @@ contains
       use mp
       use input
       use distribution
-      use matrix_submodule
+      use contexts
       implicit none
       integer,dimension(:),allocatable:: nNonZeros_offdiag, nNonZeros_ondiag
       integer:: firstLocalRow,lastLocalRow, i, j
@@ -48,6 +40,8 @@ contains
       KSP:: ksp
       PC:: pc
       PetscViewerAndFormat:: viewer
+
+      external jacobian_func, residual_func
 
       ! Determine size of matrix
       matrix_size = Nr*Np*Nx
@@ -134,6 +128,12 @@ contains
       ! Define context for residual functions
       ctx%opt=0
 
+      if (nonlinear) then
+         call SNESSetType(snes, SNESNEWTONLS, ierr)
+      else
+         call SNESSetType(snes, SNESKSPONLY, ierr)
+      end if
+
       call SNESSetFunction(snes, residualVector, residual_func, ctx, ierr)
 
       call SNESSetJacobian(snes, global_matrix, global_matrix, jacobian_func, ctx, ierr)
@@ -142,6 +142,7 @@ contains
 
       call KSPGetPC(ksp,pc,ierr)
       call PCSetType(pc,PCLU,ierr)
+
       if (solver_tol < 0.0) then
 
          print*, "ERROR: Direct solver not yet implemented"
@@ -157,11 +158,7 @@ contains
       end if
       call KSPSetFromOptions(ksp,ierr)
 
-      if (nonlinear) then
-         call SNESSetType(snes, SNESNEWTONLS, ierr)
-      else
-         call SNESSetType(snes, SNESKSPONLY, ierr)
-      end if
+
 
       deallocate(nNonZeros_offdiag)
       deallocate(nNonZeros_ondiag)
@@ -173,28 +170,6 @@ contains
       implicit none
 
    end subroutine
-
-   subroutine residual_func(snes_in, stateVector, residualVector, context, localerr)
-      use matrix_submodule
-      implicit none
-      SNES:: snes_in
-      Vec,intent(in):: stateVector
-      Vec,intent(inout):: residualVector
-      type(resContext):: context
-      PetscErrorCode:: localerr
-
-   end subroutine residual_func
-
-   subroutine jacobian_func(snes_in, stateVector, matrix_local, matrix_pc, context, localerr)
-      use matrix_submodule
-      implicit none
-      SNES:: snes_in
-      Vec,intent(in):: stateVector
-      Mat:: matrix_local, matrix_pc
-      type(resContext):: context
-      PetscErrorCode:: localerr
-
-   end subroutine jacobian_func
 
    subroutine finish_matrix()
       use mp
