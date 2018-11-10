@@ -144,10 +144,8 @@ contains
       call PCSetType(pc,PCLU,ierr)
 
       if (solver_tol < 0.0) then
-
          print*, "ERROR: Direct solver not yet implemented"
          stop
-
       else
 
          call KSPSetType(ksp,KSPGMRES,ierr)
@@ -157,8 +155,6 @@ contains
 
       end if
       call KSPSetFromOptions(ksp,ierr)
-
-
 
       deallocate(nNonZeros_offdiag)
       deallocate(nNonZeros_ondiag)

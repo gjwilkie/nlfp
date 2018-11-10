@@ -45,6 +45,7 @@ module grids
       allocate(d3p(Np,Nx))
       allocate(d3r(Nr))
 
+
       if (rgrid_opt == "uniform") then
          call get_grid_uniform(Nr,rmin,rmax,rgrid,rgrid_edge)
       else

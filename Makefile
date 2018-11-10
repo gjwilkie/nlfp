@@ -20,7 +20,7 @@ GIT_HASH='"$(GIT_MOD)$(shell git rev-list HEAD -n 1)"'
 nlfp: nlfp.o input.o output.o mp.o constants.o source.o diffusion.o distribution.o grids.o geometry.o matrix.o residual.o contexts.o
 	$(FLINKER) -o nlfp nlfp.o mp.o input.o output.o source.o diffusion.o distribution.o grids.o constants.o geometry.o matrix.o residual.o contexts.o -I${PETSC_DIR}/include $(PETSC_LIB) $(NETCDF_INC) $(NETCDF_LIB)
 
-nlfp.o: nlfp.f90  input.o mp.o grids.o output.o matrix.o source.o contexts.o
+nlfp.o: nlfp.f90  input.o mp.o grids.o output.o matrix.o source.o contexts.o geometry.o
 	$(FC) -c nlfp.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o nlfp.o
 
 input.o: input.f90 mp.o constants.o
@@ -38,7 +38,7 @@ matrix.o: matrix.f90 diffusion.o geometry.o source.o mp.o contexts.o residual.o
 constants.o: constants.f90 
 	$(FC) -c constants.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o constants.o
 
-geometry.o: geometry.f90 input.o
+geometry.o: geometry.f90 input.o constants.o
 	$(FC) -c geometry.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o geometry.o
 
 grids.o: grids.f90 constants.o input.o

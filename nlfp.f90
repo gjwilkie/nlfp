@@ -14,6 +14,7 @@ use input, only: init_input
 use output, only: init_output, write_initial_data, finish_output
 use source, only: init_source
 use diffusion, only: init_diffusion
+use geometry, only: init_geometry
 use matrix, only: init_matrix, finish_matrix
 use contexts, only: init_precomputes
 use mp, only: mp_end, mp_init, iproc
@@ -46,9 +47,13 @@ character(len=64):: runname
       call init_output(runname)
    end if
 
+   call init_geometry()
+
    call init_grids()
 
    call init_source()
+
+   call init_diffusion()
 
    call init_precomputes()
 
