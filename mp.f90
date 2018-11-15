@@ -8,7 +8,7 @@ use mpi
 
    private
 
-   public :: mp_init, mp_end, snes, mpicomm, localNrows
+   public :: mp_init, mp_end, snes, mpicomm, localNrows, firstLocalRow, lastLocalRow, set_ownership
 
    !> Integer representing the process index
    public :: iproc
@@ -23,7 +23,7 @@ use mpi
    PetscErrorCode:: ierr
    SNES:: snes
    MPI_Comm:: mpicomm
-   integer:: localNrows
+   integer:: localNrows, firstLocalRow, lastLocalRow
 
    contains
 
@@ -48,6 +48,29 @@ use mpi
       call MPI_Comm_rank(PETSC_COMM_WORLD,iproc,ierr)
 
    end subroutine mp_init
+
+   subroutine set_ownership(matrix_size)
+      integer,intent(in):: matrix_size
+      integer:: cumRows
+
+      ! Get how many rows this processor is responsible for
+      localNrows = PETSC_DECIDE
+      call PetscSplitOwnership(PETSC_COMM_WORLD, localNrows, matrix_size,ierr)
+
+      ! Calculate the total number of rows up to and including this processor
+      ! (i.e., from proc0 to iproc)
+      cumRows = 0
+      call MPI_Scan(localNrows,cumRows,1,MPI_INTEGER,MPI_SUM,mpicomm,ierr)
+      if (ierr /=0 ) then
+         print*,"MPI_Scan returned error code ", ierr
+         stop
+      end if
+
+      ! Use the prefix sum above to calculate the row indices this processor is responsible for
+      firstLocalRow = cumRows-localNrows+1
+      lastLocalRow = cumRows
+
+   end subroutine set_ownership
 
    subroutine mp_end()
       implicit none

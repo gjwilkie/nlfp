@@ -6,10 +6,12 @@ module grids
    public :: init_grids,rgrid,pgrid,xgrid,rgrid_edge,pgrid_edge,xgrid_edge
    public :: get_idx, get_idx_r, get_idx_p, get_idx_x
    public :: d3p, d3r
+   public :: ir_upwind, ip_upwind, ix_upwind
 
    real, dimension(:), allocatable:: rgrid, pgrid, xgrid, d3r
    real, dimension(:), allocatable:: rgrid_edge, pgrid_edge, xgrid_edge
    real, dimension(:,:), allocatable:: d3p
+   integer, dimension(:,:,:), allocatable:: ir_upwind, ip_upwind, ix_upwind
 
    private
    abstract interface
@@ -44,6 +46,9 @@ module grids
       allocate(xgrid_edge(Nx+1))
       allocate(d3p(Np,Nx))
       allocate(d3r(Nr))
+      allocate(ir_upwind(Nr,Np,Nx))
+      allocate(ip_upwind(Nr,Np,Nx))
+      allocate(ix_upwind(Nr,Np,Nx))
 
 
       if (rgrid_opt == "uniform") then
@@ -114,6 +119,22 @@ module grids
       end select
 
    end subroutine init_grids
+
+   subroutine set_ir_upwind(ir,ip,ix,ir_up)
+      implicit none
+      integer,intent(in):: ir,ip,ix,ir_up
+      ir_upwind(ir,ip,ix) = ir_up
+   end subroutine
+   subroutine set_ip_upwind(ir,ip,ix,ip_up)
+      implicit none
+      integer,intent(in):: ir,ip,ix,ip_up
+      ip_upwind(ir,ip,ix) = ip_up
+   end subroutine
+   subroutine set_ix_upwind(ir,ip,ix,ix_up)
+      implicit none
+      integer,intent(in):: ir,ip,ix,ix_up
+      ix_upwind(ir,ip,ix) = ix_up
+   end subroutine
 
    subroutine get_grid_uniform(Nx,xmin,xmax,xgrid,xgrid_edge)
       implicit none

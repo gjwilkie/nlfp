@@ -4,7 +4,7 @@ module matrix
 use petscsnes
 implicit none
 
-public :: init_matrix, matrix_size, finish_matrix
+public :: init_matrix, matrix_size, finish_matrix, set_matrix_size
 
 PetscInt :: matrix_size
 
@@ -23,7 +23,18 @@ interface SNESSetApplicationContext
    end subroutine SNESSetApplicationContext
 end interface
 
+
 contains
+
+   subroutine set_matrix_size()
+      use input
+      ! Determine size of matrix
+      matrix_size = Nr*Np*Nx
+      if (efield_option == "diffusive") then
+         matrix_size = matrix_size + Nr
+      end if
+   end subroutine set_matrix_size
+
    subroutine init_matrix()
       use mp
       use input
@@ -31,23 +42,16 @@ contains
       use contexts
       implicit none
       integer,dimension(:),allocatable:: nNonZeros_offdiag, nNonZeros_ondiag
-      integer:: firstLocalRow,lastLocalRow, i, j
+      integer:: i, j
       real:: rtol,atol,stol
       integer:: maxit, maxf
       PetscMPIInt:: jproc
       PetscInt:: cumRows
-      type(resContext):: ctx
       KSP:: ksp
       PC:: pc
       PetscViewerAndFormat:: viewer
 
       external jacobian_func, residual_func
-
-      ! Determine size of matrix
-      matrix_size = Nr*Np*Nx
-      if (efield_option == "diffusive") then
-         matrix_size = matrix_size + Nr
-      end if
 
       ! Predict the number of nonzeros for preallocation
       allocate(nNonZeros_offdiag(matrix_size))
@@ -85,23 +89,6 @@ contains
          nNonZeros_offdiag(:) = nNonZeros_offdiag(:) + 2
       end if
 
-      ! Get how many rows this processor is responsible for
-      localNrows = PETSC_DECIDE
-      call PetscSplitOwnership(PETSC_COMM_WORLD, localNrows, matrix_size,ierr)
-
-      ! Calculate the total number of rows up to and including this processor
-      ! (i.e., from proc0 to iproc)
-      cumRows = 0
-      call MPI_Scan(localNrows,cumRows,1,MPI_INTEGER,MPI_SUM,mpicomm,ierr)
-      if (ierr /=0 ) then
-         print*,"MPI_Scan returned error code ", ierr
-         stop
-      end if
-
-      ! Use the prefix sum above to calculate the row indices this processor is responsible for
-      firstLocalRow = cumRows-localNrows+1
-      lastLocalRow = cumRows
-
       ! Create the parallel matrix and share the rows
       call MatCreate(PETSC_COMM_WORLD,global_matrix,ierr)
       call MatSetType(global_matrix, MATAIJ, ierr)
@@ -125,8 +112,6 @@ contains
       ! Initialize the state vector
       call set_initDistribution(stateVector)
 
-      ! Define context for residual functions
-      ctx%opt=0
 
       if (nonlinear) then
          call SNESSetType(snes, SNESNEWTONLS, ierr)
@@ -134,9 +119,9 @@ contains
          call SNESSetType(snes, SNESKSPONLY, ierr)
       end if
 
-      call SNESSetFunction(snes, residualVector, residual_func, ctx, ierr)
+      call SNESSetFunction(snes, residualVector, residual_func, precomp, ierr)
 
-      call SNESSetJacobian(snes, global_matrix, global_matrix, jacobian_func, ctx, ierr)
+      call SNESSetJacobian(snes, global_matrix, global_matrix, jacobian_func, precomp, ierr)
 
       call SNESGetKSP(snes,ksp,ierr)
 
@@ -148,10 +133,10 @@ contains
          stop
       else
 
-         call KSPSetType(ksp,KSPGMRES,ierr)
-         call KSPSetTolerances(ksp,solver_tol,PETSC_DEFAULT_REAL,PETSC_DEFAULT_REAL,PETSC_DEFAULT_INTEGER,ierr)
-         call PetscViewerAndFormatCreate(PETSC_VIEWER_STDOUT_WORLD,PETSC_VIEWER_DEFAULT,viewer,ierr)
-         call KSPMonitorSet(ksp,KSPMonitorDefault,viewer,PetscViewerAndFormatDestroy,ierr)
+      call KSPSetType(ksp,KSPGMRES,ierr)
+      call KSPSetTolerances(ksp,solver_tol,PETSC_DEFAULT_REAL,PETSC_DEFAULT_REAL,PETSC_DEFAULT_INTEGER,ierr)
+      call PetscViewerAndFormatCreate(PETSC_VIEWER_STDOUT_WORLD,PETSC_VIEWER_DEFAULT,viewer,ierr)
+      call KSPMonitorSet(ksp,KSPMonitorDefault,viewer,PetscViewerAndFormatDestroy,ierr)
 
       end if
       call KSPSetFromOptions(ksp,ierr)

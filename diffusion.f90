@@ -31,7 +31,9 @@ module diffusion
 
    subroutine init_diffusion()
       use input
+      use grids
       implicit none
+      integer :: ir, ip, ix
 
       select case (diffusion_type)
       case ("test1d")
@@ -43,10 +45,34 @@ module diffusion
       end select
 
       ! Fill these in with collision operator and electric field advection
-         Ap => coeff_zero
-         Ax => coeff_zero
-         Dpp => coeff_zero
-         Dxx => coeff_zero
+      Ap => coeff_zero
+      Ax => coeff_zero
+      Dpp => coeff_zero
+      Dxx => coeff_zero
+
+      do ir = 1,Nr
+         do ip = 1,Np
+            do ix = 1,Nx
+               if ( Ar(rgrid_edge(ir),pgrid(ip),xgrid(ix)) >= 0.0 ) then
+                  set_ir_upwind(ir,ip,ix,ir-1)
+               else
+                  set_ir_upwind(ir,ip,ix,ir)
+               end if
+
+               if ( Ap(rgrid(ir),pgrid_edge(ip),xgrid(ix)) >= 0.0 ) then
+                  set_ip_upwind(ir,ip,ix,ip-1)
+               else
+                  set_ip_upwind(ir,ip,ix,ip)
+               end if
+
+               if ( Ax(rgrid(ir),pgrid(ip),xgrid_edge(ix)) >= 0.0 ) then
+                  set_ix_upwind(ir,ip,ix,ix-1)
+               else
+                  set_ix_upwind(ir,ip,ix,ix) 
+               end if
+            end do
+         end do
+      end do
 
    end subroutine init_diffusion
 

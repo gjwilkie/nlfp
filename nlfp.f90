@@ -15,9 +15,9 @@ use output, only: init_output, write_initial_data, finish_output
 use source, only: init_source
 use diffusion, only: init_diffusion
 use geometry, only: init_geometry
-use matrix, only: init_matrix, finish_matrix
+use matrix, only: init_matrix, finish_matrix, set_matrix_size, matrix_size
 use contexts, only: init_precomputes
-use mp, only: mp_end, mp_init, iproc
+use mp, only: mp_end, mp_init, iproc, set_ownership
 use grids, only: init_grids
 implicit none
 integer::  nargs, l
@@ -50,6 +50,10 @@ character(len=64):: runname
    call init_geometry()
 
    call init_grids()
+
+   call set_matrix_size()
+
+   call set_ownership(matrix_size)
 
    call init_source()
 

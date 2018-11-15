@@ -13,7 +13,6 @@ use petscsnes
       use input
       use mp
       implicit none
-      integer:: firstLocalRow, lastLocalRow
       Vec,intent(inout)::f0
 
       ! Set the initial distribution

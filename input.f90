@@ -105,6 +105,7 @@ contains
       implicit none
       integer:: i
 
+
       ! Rescale normalized input
       if (pmax_mc > 0.0) then
          pmax = pmax_mc * me * c
@@ -124,6 +125,17 @@ contains
             stop
          end select
       end do
+
+      nonlinear = .false.
+      select case (efield_option)
+      case ("none")
+      case ("inductive")
+         nonlinear = .true.
+      case default
+         print*, "ERROR: ",efield_option," is not a valid efield_option."
+         stop
+      end select
+
 
       ! Sanity checks
       if ( (Nr == 1) .AND. (Np == 1) .AND. (Nx == 1) ) then
