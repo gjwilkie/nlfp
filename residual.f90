@@ -6,10 +6,12 @@ subroutine residual_func(snes_in, stateVector, residualVector, ctx, localerr)
    use input
    use geometry
    use mp
+   use diffusion
+   use source
    implicit none
    SNES:: snes_in
-   Vec,dimension(firstLocalRow),intent(in):: stateVector
-   Vec,dimension(firstLocalRow),intent(inout):: residualVector
+   PetscScalar,dimension(:),intent(in):: stateVector
+   PetscScalar,dimension(:),intent(inout):: residualVector
    type(resContext):: ctx
    PetscErrorCode:: localerr
    real,dimension(:),allocatable:: Efield
@@ -107,11 +109,11 @@ subroutine residual_func(snes_in, stateVector, residualVector, ctx, localerr)
       end if
 
       if (ip == 1) then
-         jacob_pr = jacob(rgrid(ir),pgrid_edge((p+1),xgrid(ix)))
+         jacob_pr = jacob(rgrid(ir),pgrid_edge(ip+1),xgrid(ix))
          jacob_pp1 = jacob(rgrid(ir),pgrid(ip+1),xgrid(ix))
 
          Ap_r = jacob_pr*Ar(rgrid(ir),pgrid_edge(ip+1),xgrid(ix),t) 
-         Dp_r = jacob_c*Dpp(rgrid(ir),pgrid(ip),pgrid(ix),t)*jacob_pp1*Dpp(rgrid(ir),pgrid(ip+1),xgrid(ix)) * ( pgrid(ip+1) - pgrid(ip) ) / & 
+         Dp_r = jacob_c*Dpp(rgrid(ir),pgrid(ip),pgrid(ix),t)*jacob_pp1*Dpp(rgrid(ir),pgrid(ip+1),xgrid(ix),t) * ( pgrid(ip+1) - pgrid(ip) ) / & 
             ( (pgrid(ip+1)-pgrid_edge(ip+1))*jacob_c*Dpp(rgrid(ir),pgrid(ip),xgrid(ix),t) + (pgrid_edge(ip+1)-pgrid(ip))*jacob_pp1*Dpp(rgrid(ir),pgrid(ip+1),xgrid(ix),t) )
 
          if (ip_upwind(ir,ip+1,ix) < 1) then
@@ -123,7 +125,7 @@ subroutine residual_func(snes_in, stateVector, residualVector, ctx, localerr)
          temp=temp- (Dp_r/( (pgrid(ip)-pgrid(ip-1))*(pgrid_edge(ip+1)-pgrid_edge(ip)))) * (0.0 - stateVector(idx))
       else if (ip == Np) then
          jacob_pl = jacob(rgrid(ir),pgrid_edge(ip),xgrid(ix))
-         jacob_pr = jacob(rgrid(ir),pgrid_edge((p+1),xgrid(ix)))
+         jacob_pr = jacob(rgrid(ir),pgrid_edge(ip+1),xgrid(ix))
          jacob_pm1 = jacob(rgrid(ir),pgrid(ip-1),xgrid(ix))
          jacob_pp1 = jacob(rgrid(ir),pgrid(ip+1),xgrid(ix))
 
@@ -133,7 +135,7 @@ subroutine residual_func(snes_in, stateVector, residualVector, ctx, localerr)
          Dp_l = jacob_pm1*Dpp(rgrid(ir),pgrid(ip-1),pgrid(ix),t)*jacob_c*Dpp(rgrid(ir),pgrid(ip),xgrid(ix),t) * ( pgrid(ip) - pgrid(ip-1) ) / & 
             ( (pgrid(ip)-pgrid_edge(ip))*jacob_pm1*Dpp(rgrid(ir),pgrid(ip-1),xgrid(ix),t) + (pgrid_edge(ip+1)-pgrid(ip))*jacob_c**Dpp(rgrid(ir),pgrid(ip),xgrid(ix),t) )
 
-         Dp_r = jacob_c*Dpp(rgrid(ir),pgrid(ip),pgrid(ix),t)*jacob_pp1*Dpp(rgrid(ir),pgrid(ip),xgrid(ix)) * ( pgrid(ip) - pgrid(ip-1) ) / & 
+         Dp_r = jacob_c*Dpp(rgrid(ir),pgrid(ip),pgrid(ix),t)*jacob_pp1*Dpp(rgrid(ir),pgrid(ip),xgrid(ix),t) * ( pgrid(ip) - pgrid(ip-1) ) / & 
             ( (pgrid(ip)-pgrid_edge(ip))*jacob_c*Dpp(rgrid(ir),pgrid(ip),xgrid(ix),t) + (pgrid_edge(ip+1)-pgrid(ip))*jacob_pp1*Dpp(rgrid(ir),pgrid(ip),xgrid(ix),t) )
 
          temp=temp- Ap_l * stateVector( get_idx(ir,ip_upwind(ir,ip,ix),ix) ) / (pgrid_edge(ip+1)-pgrid_edge(ip))
@@ -148,7 +150,7 @@ subroutine residual_func(snes_in, stateVector, residualVector, ctx, localerr)
 
       else
          jacob_pl = jacob(rgrid(ir),pgrid_edge(ip),xgrid(ix))
-         jacob_pr = jacob(rgrid(ir),pgrid_edge((p+1),xgrid(ix)))
+         jacob_pr = jacob(rgrid(ir),pgrid_edge(ip+1),xgrid(ix))
          jacob_pm1 = jacob(rgrid(ir),pgrid(ip-1),xgrid(ix))
          jacob_pp1 = jacob(rgrid(ir),pgrid(ip+1),xgrid(ix))
 
@@ -158,7 +160,7 @@ subroutine residual_func(snes_in, stateVector, residualVector, ctx, localerr)
          Dp_l = jacob_pm1*Dpp(rgrid(ir),pgrid(ip-1),pgrid(ix),t)*jacob_c*Dpp(rgrid(ir),pgrid(ip),xgrid(ix),t) * ( pgrid(ip) - pgrid(ip-1) ) / & 
             ( (pgrid(ip)-pgrid_edge(ip))*jacob_pm1*Dpp(rgrid(ir),pgrid(ip-1),xgrid(ix),t) + (pgrid_edge(ip+1)-pgrid(ip))*jacob_c**Dpp(rgrid(ir),pgrid(ip),xgrid(ix),t) )
 
-         Dp_r = jacob_c*Dpp(rgrid(ir),pgrid(ip),pgrid(ix),t)*jacob_pp1*Dpp(rgrid(ir),pgrid(ip+1),xgrid(ix)) * ( pgrid(ip+1) - pgrid(ip) ) / & 
+         Dp_r = jacob_c*Dpp(rgrid(ir),pgrid(ip),pgrid(ix),t)*jacob_pp1*Dpp(rgrid(ir),pgrid(ip+1),xgrid(ix),t) * ( pgrid(ip+1) - pgrid(ip) ) / & 
             ( (pgrid(ip+1)-pgrid_edge(ip+1))*jacob_c*Dpp(rgrid(ir),pgrid(ip),xgrid(ix),t) + (pgrid_edge(ip+1)-pgrid(ip))*jacob_pp1*Dpp(rgrid(ir),pgrid(ip+1),xgrid(ix),t) )
          temp=temp- Ap_l * stateVector( get_idx(ir,ip_upwind(ir,ip,ix),ix) ) / (pgrid_edge(ip+1)-pgrid_edge(ip))
          temp=temp+ Ap_r * stateVector( get_idx(ir,ip_upwind(ir,ip+1,ix),ix) ) / (pgrid_edge(ip+1)-pgrid_edge(ip))
@@ -168,7 +170,7 @@ subroutine residual_func(snes_in, stateVector, residualVector, ctx, localerr)
       end if
 
       if (ix == 1) then
-         jacob_xr = jacob(rgrid(ir),pgrid(ip),xgrid_edge((x+1)))
+         jacob_xr = jacob(rgrid(ir),pgrid(ip),xgrid_edge((ix+1)))
          jacob_xp1 = jacob(rgrid(ir),pgrid(ip),xgrid(ix+1))
 
          Ax_r = jacob_xr*Ar(rgrid(ir),pgrid(ip),xgrid_edge(ix+1),t) 
@@ -189,7 +191,7 @@ subroutine residual_func(snes_in, stateVector, residualVector, ctx, localerr)
          temp=temp+ (Dx_l/( (xgrid(ix)-xgrid(ix-1))*(xgrid_edge(ix+1)-pgrid_edge(ix)))) * ( stateVector(idx) - stateVector(idx_xm1) )
       else
          jacob_xl = jacob(rgrid(ir),pgrid(ip),xgrid_edge(ix))
-         jacob_xr = jacob(rgrid(ir),pgrid(ip),xgrid_edge((x+1)))
+         jacob_xr = jacob(rgrid(ir),pgrid(ip),xgrid_edge((ix+1)))
 
          jacob_xm1 = jacob(rgrid(ir),pgrid(ip),xgrid(ix-1))
          jacob_xp1 = jacob(rgrid(ir),pgrid(ip),xgrid(ix+1))
@@ -213,7 +215,8 @@ subroutine residual_func(snes_in, stateVector, residualVector, ctx, localerr)
 
       ! Coordinate jacobian defined on cell faces
 
-      residualVector(idx) = temp + ( (stateVector(idx) - ctx%prevStateVector(idx))/delta_t) - sourcefunc(rgrid(ir),pgrid(ip),xgrid(ix),t)
+      !      residualVector(idx) = temp + ( (stateVector(idx) - ctx%prevStateVector(idx))/delta_t) - sourcefunc(rgrid(ir),pgrid(ip),xgrid(ix),t)
+            residualVector(idx) = temp + ( (stateVector(idx) - 0.0) - sourcefunc(rgrid(ir),pgrid(ip),xgrid(ix),t))
    end do
    
 end subroutine residual_func

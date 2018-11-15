@@ -1,7 +1,7 @@
 module geometry
    implicit none
 
-   public::Vprime, init_geometry
+   public::Vprime, init_geometry, jacob
 
    private
 
