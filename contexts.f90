@@ -8,6 +8,7 @@ use mp
 
    type resContext
       real:: time
+      real:: delta_t
    end type resContext
    
    type(resContext):: precomp
@@ -21,7 +22,8 @@ use mp
       integer:: idx
       
 
-      precomp.time = 0.0
+      precomp%time = 0.0
+      precomp%delta_t = 0.0
       ! Define context for residual functions
 
       ! For now this is empty. Premature optimization is the root of all evil.

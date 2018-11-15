@@ -7,6 +7,7 @@ module grids
    public :: get_idx, get_idx_r, get_idx_p, get_idx_x
    public :: d3p, d3r
    public :: ir_upwind, ip_upwind, ix_upwind
+   public :: set_ir_upwind, set_ip_upwind, set_ix_upwind
 
    real, dimension(:), allocatable:: rgrid, pgrid, xgrid, d3r
    real, dimension(:), allocatable:: rgrid_edge, pgrid_edge, xgrid_edge

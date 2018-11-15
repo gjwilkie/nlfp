@@ -53,22 +53,22 @@ module diffusion
       do ir = 1,Nr
          do ip = 1,Np
             do ix = 1,Nx
-               if ( Ar(rgrid_edge(ir),pgrid(ip),xgrid(ix)) >= 0.0 ) then
-                  set_ir_upwind(ir,ip,ix,ir-1)
+               if ( Ar(rgrid_edge(ir),pgrid(ip),xgrid(ix),0.0) >= 0.0 ) then
+                  call set_ir_upwind(ir,ip,ix,ir-1)
                else
-                  set_ir_upwind(ir,ip,ix,ir)
+                  call set_ir_upwind(ir,ip,ix,ir)
                end if
 
-               if ( Ap(rgrid(ir),pgrid_edge(ip),xgrid(ix)) >= 0.0 ) then
-                  set_ip_upwind(ir,ip,ix,ip-1)
+               if ( Ap(rgrid(ir),pgrid_edge(ip),xgrid(ix),0.0) >= 0.0 ) then
+                  call set_ip_upwind(ir,ip,ix,ip-1)
                else
-                  set_ip_upwind(ir,ip,ix,ip)
+                  call set_ip_upwind(ir,ip,ix,ip)
                end if
 
-               if ( Ax(rgrid(ir),pgrid(ip),xgrid_edge(ix)) >= 0.0 ) then
-                  set_ix_upwind(ir,ip,ix,ix-1)
+               if ( Ax(rgrid(ir),pgrid(ip),xgrid_edge(ix),0.0) >= 0.0 ) then
+                  call set_ix_upwind(ir,ip,ix,ix-1)
                else
-                  set_ix_upwind(ir,ip,ix,ix) 
+                  call set_ix_upwind(ir,ip,ix,ix) 
                end if
             end do
          end do

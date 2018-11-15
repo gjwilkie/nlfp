@@ -44,7 +44,7 @@ geometry.o: geometry.f90 input.o constants.o
 grids.o: grids.f90 constants.o input.o
 	$(FC) -c grids.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o grids.o
 
-diffusion.o: diffusion.f90 
+diffusion.o: diffusion.f90 grids.o
 	$(FC) -c diffusion.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o diffusion.o
 
 source.o: source.f90 input.o
