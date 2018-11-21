@@ -82,7 +82,7 @@ contains
          nNonZeros_offdiag(:) = nNonZeros_ondiag(:) 
       end if
       ! If nproc > twice the resoultion of the slowest-changing coordinate,
-      ! then the local matrix will have no nonzero elements outsize
+      ! then the local matrix will have no nonzero elements outside
       ! the diagonal block. Otherwise, there will two additional elements.
       if (nproc < 2*N_ordered(1)) then
          nNonZeros_ondiag(:) = nNonZeros_ondiag(:) - 2

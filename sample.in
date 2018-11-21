@@ -30,6 +30,11 @@
    rmax = 1.0
 /
 
+&boundary_params
+   rmin_bc = "noflux"
+   rmax_bc = "zero"
+/
+
 &time_params
    dt = 0.01
    Nt = 1000

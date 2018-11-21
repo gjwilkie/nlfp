@@ -29,6 +29,8 @@ character(len=16) :: efield_option !< Option determining the behavior of the ele
 integer,dimension(3) :: N_ordered !< The resolutions in each dimension according to the chosen layout
 real :: rmaj !< Major radius or other normalizing quantity. Used in calculating volume integral.
 real :: solver_tol !< Relative tolerance for the iterative solver, negative for direct solve
+character(len=16) :: rmin_bc !< Boundary condition type at inner radius
+character(len=16) :: rmax_bc !< Boundary condition type at outer radius
 
 ! Input-derived paramters
 logical:: nonlinear !< Determines weather a nonlinear solve is needed
@@ -54,6 +56,7 @@ contains
       namelist /time_params/ dt,Nt
       namelist /control_params/ layout, solver_tol
       namelist /physics_params/ efield_option
+      namelist /boundary_params/ rmin_bc, rmax_bc
 
       ! Open input file
       infile = trim(runname)//".in"
@@ -71,6 +74,7 @@ contains
       read(inunit,nml=source_params); rewind inunit
       read(inunit,nml=diffusion_params); rewind inunit
       read(inunit,nml=geometry_params); rewind inunit
+      read(inunit,nml=boundary_params); rewind inunit
       read(inunit,nml=time_params); rewind inunit
       read(inunit,nml=control_params); rewind inunit
       read(inunit,nml=physics_params); rewind inunit
@@ -92,6 +96,8 @@ contains
       diffusion_type = "none"
       source_type = "none"
       geometry_type = "flat"
+      rmin_bc = "noflux"
+      rmax_bc = "zero"
       layout = "rxp"
       solver_tol = 1.0e-4
       rmin = 0.0

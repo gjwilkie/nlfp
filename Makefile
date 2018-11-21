@@ -53,6 +53,9 @@ source.o: source.f90 input.o
 distribution.o: distribution.f90 
 	$(FC) -c distribution.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o distribution.o
 
+boundary.o: boundary.f90 input.o grids.o
+	$(FC) -c boundary.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o boundary.o
+
 residual.o: residual.f90 contexts.o grids.o input.o geometry.o mp.o diffusion.o source.o
 	$(FC) -c residual.f90 $(OPTS) $(PETSC_FC_INCLUDES) -o residual.o
 

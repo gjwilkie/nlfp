@@ -27,8 +27,7 @@ subroutine residual_func(snes_in, stateVector, residualVector, ctx, localerr)
    case ("none")
       Efield(:) = 0.0
    case ("inductive")
-      ! Get electric field from its home processor
-      ! TODO
+      Efield(:) = stateVector(Nr*Np*Nx+1:Nr*Np*Nx+Nr)
    end select
 
    t = ctx%time
